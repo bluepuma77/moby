@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/netip"
 	"os"
 	"path/filepath"
@@ -438,7 +439,14 @@ func (n *network) setupSubnetSandbox(s *subnet, brName, vxlanName string) error 
 	if err != nil {
 		log.G(context.TODO()).WithError(err).Errorf("Assuming IPv4 transport; overlay network %s will not pass traffic if the Swarm data plane is IPv6.", n.id)
 	}
-	if err := createVxlan(vxlanName, s.vni, n.maxMTU(), v6transport); err != nil {
+	n.driver.mu.Lock()
+	srcAddr := n.driver.advertiseAddress
+	n.driver.mu.Unlock()
+	var vtepSrcAddr net.IP
+	if srcAddr.IsValid() {
+		vtepSrcAddr = srcAddr.AsSlice()
+	}
+	if err := createVxlan(vxlanName, s.vni, n.maxMTU(), v6transport, vtepSrcAddr); err != nil {
 		return err
 	}
 
