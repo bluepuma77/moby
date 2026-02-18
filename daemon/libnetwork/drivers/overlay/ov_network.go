@@ -446,6 +446,7 @@ func (n *network) setupSubnetSandbox(s *subnet, brName, vxlanName string) error 
 	if srcAddr.IsValid() {
 		vtepSrcAddr = srcAddr.AsSlice()
 	}
+	log.G(context.TODO()).Infof("overlay: creating VXLAN %s vni:%d srcAddr:%v", vxlanName, s.vni, vtepSrcAddr)
 	if err := createVxlan(vxlanName, s.vni, n.maxMTU(), v6transport, vtepSrcAddr); err != nil {
 		return err
 	}
