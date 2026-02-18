@@ -59,7 +59,7 @@ func createVethPair() (string, string, error) {
 	return name1, name2, nil
 }
 
-func createVxlan(name string, vni uint32, mtu int, vtepIPv6 bool) error {
+func createVxlan(name string, vni uint32, mtu int, vtepIPv6 bool, srcAddr net.IP) error {
 	vxlan := &netlink.Vxlan{
 		LinkAttrs: netlink.LinkAttrs{Name: name, MTU: mtu},
 		VxlanId:   int(vni),
@@ -68,6 +68,7 @@ func createVxlan(name string, vni uint32, mtu int, vtepIPv6 bool) error {
 		Proxy:     true,
 		L3miss:    true,
 		L2miss:    true,
+		SrcAddr:   srcAddr,
 	}
 
 	// The kernel restricts the destination VTEP (virtual tunnel endpoint) in
